@@ -34,12 +34,25 @@ class BookController {
 
     async updateBook(req, res) {
         try {
-            const data = req.body
-            if(data._id) {
-                res.status(400).send('Id не указан')
+            const { operation } = req.query
+            const { id } = req.params
+            if(operation === "add") {
+                await Book.findOneAndUpdate(
+                    {_id: id},
+                    {$addToSet : {
+                        readers : {...req.body}
+                    }}
+                )
+                res.send({message: 'User added to readers list'})
             }
-            const updatedBook = await Book.findByIdAndUpdate(data._id, data, { new: true })
-            res.send(updatedBook)
+
+            if(operation === "remove") {
+                const book = await Book.findOne({id})
+                const newReadersList = book.readers.filter(el => el.username !== req.body.username)
+                book.readers = newReadersList
+                await book.save()
+                res.send({message: "User removed from readers list"})
+            } 
         } catch (err) {
             res.status(500).send(err.message)
         }

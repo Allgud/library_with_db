@@ -14,7 +14,10 @@ const Book = new mongoose.Schema({
     year: {
         type: Number,
         required: true
-    }
+    },
+    readers: {
+        type: Array
+    } 
 })
 
 export default mongoose.model('Book', Book)
